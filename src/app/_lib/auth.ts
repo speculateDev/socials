@@ -5,12 +5,18 @@ import GithubProvider from "next-auth/providers/github";
 
 const authConfig = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+    }),
+    GithubProvider({
+      clientId: process.env.AUTH_GITHUB_ID,
+      clientSecret: process.env.AUTH_GITHUB_SECRET,
+    }),
     Credentials({
       async authorize(credentials) {
         const { email, password } = credentials;
-
         console.log({ email, password });
-
         const testUser = {
           id: "1",
           name: "Test User",
