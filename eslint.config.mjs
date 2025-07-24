@@ -14,6 +14,9 @@ const eslintConfig = [
   {
     rules: {
       "no-console": "warn",
+      // For &apos; and so on ...
+      "react/no-unescaped-entities": "off",
+      "@next/next/no-img-element": "off",
     },
   },
 ];
