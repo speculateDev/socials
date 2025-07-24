@@ -1,9 +1,43 @@
 import Image from "next/image";
+import { signIn } from "./_lib/auth";
 
 export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        <form
+          action={async (formData) => {
+            "use server";
+            await signIn("credentials", formData);
+          }}
+        >
+          <label className="block mb-2" htmlFor="email">
+            email
+          </label>
+
+          <input
+            className="bg-white text-black mb-6"
+            type="text"
+            name="email"
+          />
+
+          <label className="block mb-2" htmlFor="password">
+            password
+          </label>
+
+          <input
+            className="bg-white text-black"
+            type="password"
+            name="password"
+          />
+
+          <div className="flex gap-3">
+            <button className="mt-2 rounded-md p-1 border border-white block cursor-pointer">
+              Sign in
+            </button>
+          </div>
+        </form>
+
         <Image
           className="dark:invert"
           src="/next.svg"
