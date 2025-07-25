@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import ChatLayout from "./_components/chat/ChatLayout";
+import PrefrencesTab from "./_components/PrefrencesTab";
 
 async function Home() {
   const cookiess = await cookies();
@@ -15,6 +16,7 @@ async function Home() {
         aria-hidden="true"
       />
 
+      <PrefrencesTab />
       <div className="z-10 border rounded-lg max-w-5xl w-full min-h-[85vh] text-sm lg:flex">
         <ChatLayout defaultLayout={defaultLayout} />
       </div>
