@@ -121,3 +121,27 @@
     @apply bg-background text-foreground;
   }
 }
+<<<<<<< Updated upstream
+=======
+
+/* Rounded cool scrollbar */
+@layer components {
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--muted);
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: var(--background);
+  }
+}
+
+.bg-noise {
+  background-image: url("/noise.svg");
+}
+>>>>>>> Stashed changes
