@@ -8,12 +8,15 @@ import {
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
+import { useSelectedUser } from "@/app/store/useSelectedUser";
+import MessageContainer from "./MessageContainer";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
 }
 
 function ChatLayout({ defaultLayout = [320, 480] }: ChatLayoutProps) {
+  const { selectedUser } = useSelectedUser();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -67,18 +70,22 @@ function ChatLayout({ defaultLayout = [320, 480] }: ChatLayoutProps) {
       <ResizableHandle withHandle />
 
       <ResizablePanel minSize={30} defaultSize={defaultLayout[1]}>
-        <div className="flex justify-center items-center h-full w-full px-10">
-          <div className="flex flex-col justify-center items-center gap-4">
-            <img
-              src="/logo.png"
-              alt="Logo"
-              className="w-full md:w-2/3 lg:w-1/2"
-            />
-            <p className="text-muted-foreground text-center">
-              Click on a chat to view the message
-            </p>
+        {!selectedUser && (
+          <div className="flex justify-center items-center h-full w-full px-10 bg-background">
+            <div className="flex flex-col justify-center items-center gap-4">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="w-full md:w-2/3 lg:w-1/2"
+              />
+              <p className="text-muted-foreground text-center">
+                Click on a chat to view the message
+              </p>
+            </div>
           </div>
-        </div>
+        )}
+
+        {selectedUser && <MessageContainer />}
       </ResizablePanel>
     </ResizablePanelGroup>
   );
