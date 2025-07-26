@@ -10,13 +10,19 @@ import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogOutIcon } from "lucide-react";
+import { useSelectedUser } from "@/app/store/useSelectedUser";
+import { usePrefrences } from "@/app/store/usePrefrences";
+import useSound from "use-sound";
 
 interface SidebarProps {
   isCollapsed: boolean;
 }
 
 function Sidebar({ isCollapsed }: SidebarProps) {
-  const selectedUser = USERS[0];
+  const { soundEnabled } = usePrefrences();
+  const [playClickSound] = useSound("/sounds/mouse-click.mp3");
+
+  const { selectedUser, setSelectedUser } = useSelectedUser();
 
   return (
     <div className="group relative flex flex-col h-full gap-4 p-2 data-[collapsed=true]:p-2 max-h-full overflow-auto bg-background">
@@ -33,7 +39,14 @@ function Sidebar({ isCollapsed }: SidebarProps) {
           isCollapsed ? (
             <Tooltip key={idx} delayDuration={0}>
               <TooltipTrigger asChild>
-                <div>
+                <div
+                  onClick={() => {
+                    if (soundEnabled) {
+                      playClickSound();
+                    }
+                    setSelectedUser(user);
+                  }}
+                >
                   <Avatar className="my-1 flex justify-center items-center">
                     <AvatarImage
                       src={user.image || "/user-placeholder.png"}
@@ -55,9 +68,16 @@ function Sidebar({ isCollapsed }: SidebarProps) {
             </Tooltip>
           ) : (
             <Button
+              onClick={() => {
+                if (soundEnabled) {
+                  playClickSound();
+                }
+
+                setSelectedUser(user);
+              }}
               className={cn(
                 "w-full justify-start gap-4 my-1",
-                selectedUser.email === user.email &&
+                selectedUser?.email === user.email &&
                   "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white shrink"
               )}
               variant="grey"
@@ -70,7 +90,6 @@ function Sidebar({ isCollapsed }: SidebarProps) {
                   alt="User Image"
                   height={16}
                   width={16}
-                  //   className=""
                 />
                 <AvatarFallback>{user.name[0]}</AvatarFallback>
               </Avatar>
