@@ -33,6 +33,37 @@ export async function checkAuthStatus() {
 }
 */
 
+export async function signinWithCredentials(values: {
+  email: string;
+  password: string;
+}) {
+  const { email, password } = values;
+
+  if (!email || !password) return { success: false };
+
+  try {
+    await signIn("credentials", {
+      email,
+      password,
+      redirectTo: DEFAULT_REDIRECT,
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return { error: "Invalid Credentials!" };
+          break;
+
+        default:
+          return { error: "Something went wrong!" };
+          break;
+      }
+    }
+
+    throw error;
+  }
+}
+
 export const signUp = async (values: typeof defaultFormData) => {
   const { email, password, firstname, lastname } = values;
 
