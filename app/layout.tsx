@@ -37,6 +37,7 @@ export default async function RootLayout({
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <TanstackProvider>{children}</TanstackProvider>
+            <Toaster richColors />
           </ThemeProvider>
         </body>
       </SessionProvider>
