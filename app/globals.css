@@ -121,8 +121,6 @@
     @apply bg-background text-foreground;
   }
 }
-<<<<<<< Updated upstream
-=======
 
 /* Rounded cool scrollbar */
 @layer components {
@@ -144,4 +142,3 @@
 .bg-noise {
   background-image: url("/noise.svg");
 }
->>>>>>> Stashed changes
