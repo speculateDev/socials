@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
+import OauthBtn from "../OauthBtn";
 
 export const defaultFormData = {
   firstname: "",
@@ -112,14 +113,7 @@ const Page = () => {
 
         <p className="text-center text-foreground/40">Or</p>
 
-        <Button className="px-3 py-6" variant="secondary">
-          <img
-            className="size-6"
-            src="https://authjs.dev/img/providers/google.svg"
-            alt=""
-          />
-          <span>Continue with Google</span>
-        </Button>
+        <OauthBtn />
 
         <div className="flex gap-1 text-sm justify-center mt-3">
           <p className="text-gray-500">Don't have an account?</p>

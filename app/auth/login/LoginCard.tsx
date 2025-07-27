@@ -7,12 +7,13 @@ import { signinWithCredentials } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import OauthBtn from "../OauthBtn";
 
 function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleLoginCredentials(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     signinWithCredentials({ email, password });
   }
@@ -22,7 +23,7 @@ function LoginCard() {
       <h2 className="text-2xl font-medium">Login</h2>
       <p className="text-gray-500">Welcome back!</p>
 
-      <form className="w-full" onSubmit={handleSubmit}>
+      <form className="w-full" onSubmit={handleLoginCredentials}>
         <div className="mb-4">
           <Label className="mb-2" htmlFor="email">
             Email
@@ -53,14 +54,7 @@ function LoginCard() {
 
       <p className="text-center text-foreground/40">Or</p>
 
-      <Button className="px-3 py-6" variant="secondary">
-        <img
-          className="size-6"
-          src="https://authjs.dev/img/providers/google.svg"
-          alt=""
-        />
-        <span>Continue with Google</span>
-      </Button>
+      <OauthBtn />
 
       <div className="flex gap-1 text-sm justify-center mt-6">
         <p className="text-gray-500">Don't have an account?</p>

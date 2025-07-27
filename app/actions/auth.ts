@@ -116,3 +116,11 @@ export const signUp = async (values: typeof defaultFormData) => {
     throw error;
   }
 };
+
+export async function signInOauth() {
+  try {
+    await signIn("google", { redirectTo: DEFAULT_REDIRECT });
+  } catch (error) {
+    throw error;
+  }
+}
