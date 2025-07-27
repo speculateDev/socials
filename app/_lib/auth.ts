@@ -9,29 +9,39 @@ export const authConfig = {
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
     }),
+
     GithubProvider({
       clientId: process.env.AUTH_GITHUB_ID,
       clientSecret: process.env.AUTH_GITHUB_SECRET,
     }),
+
     Credentials({
       async authorize(credentials) {
         const { email, password } = credentials;
-        console.log({ email, password });
-        const testUser = {
-          id: "1",
-          name: "Test User",
-          email: "test@example.com",
-          password: "password123", // In production, never store plain passwords!
-        };
+        if (!email || !password) return null;
 
         return {
-          id: testUser.id,
-          name: testUser.name,
-          email: testUser.email,
+          email: email as string,
+          password,
         };
       },
     }),
   ],
 };
 
-export const { handlers, signIn, signOut, auth } = NextAuth(authConfig);
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  callbacks: {
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+
+      return session;
+    },
+
+    async jwt({ token }) {
+      return token;
+    },
+  },
+  ...authConfig,
+});
