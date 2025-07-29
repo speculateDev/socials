@@ -1,11 +1,10 @@
 "use server";
+
 import { redis } from "@/lib/db";
-import { signIn } from "../_lib/auth";
-import { currentUser } from "../_lib/helpers";
+import { signIn, signOut } from "../_lib/auth";
 import { DEFAULT_REDIRECT } from "../routes";
 import { AuthError } from "next-auth";
 import { defaultFormData } from "../auth/signup/SignupForm";
-import bcrypt from "bcryptjs";
 
 /*
 export async function checkAuthStatus() {
@@ -38,8 +37,12 @@ export async function signinWithCredentials(values: {
   password: string;
 }) {
   const { email, password } = values;
+  if (!email || !password)
+    return { error: "Provide both the email and password!" };
 
-  if (!email || !password) return { success: false };
+  const userKey = await redis.get(`user:email:${email}`);
+
+  if (!userKey) return { error: "Invalid credentials!" };
 
   try {
     await signIn("credentials", {
@@ -88,38 +91,22 @@ export const signUp = async (values: typeof defaultFormData) => {
       }
     }
 
-    // Populate the session with an id
-    await signIn("credentials", { email, password, redirect: false });
-    const user = await currentUser();
-
-    if (!user) throw new Error("something went wrong");
-
-    // Create the user in the db
-    const userId = `user:${user.id}`;
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert into redis
-    await redis.hset(userId, {
-      id: user.id,
-      email: user.email,
-      password: hashedPassword,
+    // Create the user through a callback
+    await signIn("credentials", {
+      email,
+      password,
+      signUp: true,
       name: `${firstname} ${lastname}`,
-      image: "/user-placeholder.png",
+      redirectTo: DEFAULT_REDIRECT,
     });
-
-    // Create email lookup
-    await redis.set(`user:email:${email}`, userId);
-
-    return { success: "User created successfully" };
   } catch (error) {
     throw error;
   }
 };
 
-export async function signInOauth() {
+export async function signInOauth(provider: string) {
   try {
-    await signIn("google", { redirectTo: DEFAULT_REDIRECT });
+    await signIn(provider, { redirectTo: DEFAULT_REDIRECT });
   } catch (error) {
     throw error;
   }
