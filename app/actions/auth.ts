@@ -111,3 +111,11 @@ export async function signInOauth(provider: string) {
     throw error;
   }
 }
+
+export async function signOutAction() {
+  try {
+    await signOut({ redirectTo: "/auth/login" });
+  } catch (error) {
+    throw error;
+  }
+}

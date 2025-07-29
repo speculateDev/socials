@@ -13,6 +13,7 @@ import { LogOutIcon } from "lucide-react";
 import { useSelectedUser } from "@/app/store/useSelectedUser";
 import { usePrefrences } from "@/app/store/usePrefrences";
 import useSound from "use-sound";
+import { signOutAction } from "@/app/actions/auth";
 
 interface SidebarProps {
   isCollapsed: boolean;
@@ -118,9 +119,14 @@ function Sidebar({ isCollapsed }: SidebarProps) {
               <p className="font-bold">{"john Doe"}</p>
             </div>
           )}
-          <div className="cursor-pointer">
+
+          <Button
+            variant="transparent"
+            onClick={signOutAction}
+            className="cursor-pointer"
+          >
             <LogOutIcon size={22} />
-          </div>
+          </Button>
         </div>
       </div>
     </div>
