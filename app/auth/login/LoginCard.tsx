@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 
 import { signinWithCredentials } from "@/app/actions/auth";
@@ -8,14 +8,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import OauthBtn from "../OauthBtn";
+import { Loader2Icon } from "lucide-react";
+import { toast } from "sonner";
 
 function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  function handleLoginCredentials(e: React.FormEvent<HTMLFormElement>) {
+  const [isPending, startTransition] = useTransition();
+
+  async function handleLoginCredentials(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    signinWithCredentials({ email, password });
+    startTransition(async () => {
+      const res = await signinWithCredentials({ email, password });
+
+      if (res?.error) {
+        toast.error(res.error);
+        setEmail("");
+        setPassword("");
+      }
+    });
   }
 
   return (
@@ -48,13 +60,36 @@ function LoginCard() {
         </div>
 
         <Button type="submit" className="px-3 py-5 w-full mt-6">
-          Login
+          {isPending ? (
+            <>
+              <Loader2Icon className="animate-spin size-6" />
+              <span>Loggin in...</span>
+            </>
+          ) : (
+            "Login"
+          )}
         </Button>
       </form>
 
       <p className="text-center text-foreground/40">Or</p>
 
-      <OauthBtn />
+      <OauthBtn provider="google">
+        <img
+          className="size-6"
+          src="https://authjs.dev/img/providers/google.svg"
+          alt="Google icon"
+        />
+        <span>Continue with Google</span>
+      </OauthBtn>
+
+      <OauthBtn provider="github">
+        <img
+          className="size-6"
+          src="https://authjs.dev/img/providers/github.svg"
+          alt="Google icon"
+        />
+        <span>Continue with Google</span>
+      </OauthBtn>
 
       <div className="flex gap-1 text-sm justify-center mt-6">
         <p className="text-gray-500">Don't have an account?</p>

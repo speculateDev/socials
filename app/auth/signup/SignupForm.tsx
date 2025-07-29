@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 
 import { signUp } from "@/app/actions/auth";
@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
 import OauthBtn from "../OauthBtn";
+import { Loader2Icon } from "lucide-react";
 
 export const defaultFormData = {
   firstname: "",
@@ -19,31 +19,34 @@ export const defaultFormData = {
 
 const Page = () => {
   const [formData, setFormData] = useState(defaultFormData);
+  const [isPending, startTransition] = useTransition();
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if (
-      !formData.email ||
-      !formData.password ||
-      !formData.firstname ||
-      !formData.lastname
-    )
-      return toast.error("All fields are required");
+    startTransition(async () => {
+      if (
+        !formData.email ||
+        !formData.password ||
+        !formData.firstname ||
+        !formData.lastname
+      ) {
+        toast.error("All fields are required");
+        return;
+      }
 
-    if (formData.password.length < 6)
-      return toast.error("Password must be at least 6 characters long");
+      if (formData.password.length < 6) {
+        toast.error("Password must be at least 6 characters long");
+        return;
+      }
 
-    const res = await signUp(formData);
+      const res = await signUp(formData);
 
-    if (res?.error) {
-      return toast.error(res.error);
-    }
-
-    if (!res.success) return toast.error("Something went wrong!");
-
-    toast.success(res.success);
-    redirect("/");
+      if (res?.error) {
+        toast.error(res.error);
+        return;
+      }
+    });
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,13 +110,38 @@ const Page = () => {
             type="submit"
             className="px-3 py-6 w-full mt-4 text-md"
           >
-            Create your account
+            {isPending ? (
+              <>
+                <Loader2Icon className="animate-spin size-6" />
+                <span>Signing up...</span>
+              </>
+            ) : (
+              "Sign up"
+            )}{" "}
           </Button>
         </form>
 
         <p className="text-center text-foreground/40">Or</p>
 
-        <OauthBtn />
+        <div className="flex justify-center gap-6">
+          <OauthBtn provider="google">
+            <img
+              className="size-6"
+              src="https://authjs.dev/img/providers/google.svg"
+              alt="Google icon"
+            />
+            <span>Continue with Google</span>
+          </OauthBtn>
+
+          <OauthBtn provider="github">
+            <img
+              className="size-6"
+              src="https://authjs.dev/img/providers/github.svg"
+              alt="Google icon"
+            />
+            <span>Continue with Google</span>
+          </OauthBtn>
+        </div>
 
         <div className="flex gap-1 text-sm justify-center mt-3">
           <p className="text-gray-500">Don't have an account?</p>
