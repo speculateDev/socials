@@ -10,12 +10,14 @@ import { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { useSelectedUser } from "@/app/store/useSelectedUser";
 import MessageContainer from "./MessageContainer";
+import { User } from "@/app/types";
 
 interface ChatLayoutProps {
   defaultLayout: number[] | undefined;
+  users: User[];
 }
 
-function ChatLayout({ defaultLayout = [320, 480] }: ChatLayoutProps) {
+function ChatLayout({ defaultLayout = [320, 480], users }: ChatLayoutProps) {
   const { selectedUser } = useSelectedUser();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -64,7 +66,7 @@ function ChatLayout({ defaultLayout = [320, 480] }: ChatLayoutProps) {
           isCollapsed && "min-w-[80px] transition-all duration-300 ease-in-out"
         )}
       >
-        <Sidebar isCollapsed={isCollapsed} />
+        <Sidebar isCollapsed={isCollapsed} users={users} />
       </ResizablePanel>
 
       <ResizableHandle withHandle />

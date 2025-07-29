@@ -3,10 +3,8 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
-import { USERS } from "../../_db/dummy";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogOutIcon } from "lucide-react";
@@ -14,12 +12,17 @@ import { useSelectedUser } from "@/app/store/useSelectedUser";
 import { usePrefrences } from "@/app/store/usePrefrences";
 import useSound from "use-sound";
 import { signOutAction } from "@/app/actions/auth";
+import { User } from "@/app/types";
+import { useSession } from "next-auth/react";
 
 interface SidebarProps {
   isCollapsed: boolean;
+  users: User[];
 }
 
-function Sidebar({ isCollapsed }: SidebarProps) {
+function Sidebar({ isCollapsed, users }: SidebarProps) {
+  const { data: session } = useSession();
+
   const { soundEnabled } = usePrefrences();
   const [playClickSound] = useSound("/sounds/mouse-click.mp3");
 
@@ -36,7 +39,7 @@ function Sidebar({ isCollapsed }: SidebarProps) {
       )}
 
       <ScrollArea className="gap-2 px-2 group-[[data-collapsed=true]]:justify-center group-[[data-collapsed=true]]:px-2">
-        {USERS.map((user, idx) =>
+        {users?.map((user, idx) =>
           isCollapsed ? (
             <Tooltip key={idx} delayDuration={0}>
               <TooltipTrigger asChild>
@@ -108,15 +111,15 @@ function Sidebar({ isCollapsed }: SidebarProps) {
             <div className="hidden md:flex gap-2 items-center">
               <Avatar className="flex justify-center items-center">
                 <AvatarImage
-                  src={"/user-placeholder.png"}
+                  src={session?.user.image || "/user-placeholder.png"}
                   alt="User Image"
                   height={16}
                   width={16}
                 />
-                <AvatarFallback>{"John Doe"}</AvatarFallback>
+                <AvatarFallback>{session?.user.name.at(0)}</AvatarFallback>
               </Avatar>
 
-              <p className="font-bold">{"john Doe"}</p>
+              <p className="font-bold">{session?.user.name}</p>
             </div>
           )}
 

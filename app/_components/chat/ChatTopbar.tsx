@@ -10,7 +10,7 @@ function ChatTopbar() {
       <div className="flex items-center gap-2">
         <Avatar className="flex justify-center items-center">
           <AvatarImage
-            src={selectedUser?.image}
+            src={selectedUser?.image || "user-placeholder.png"}
             alt="User Image"
             height={16}
             width={16}
