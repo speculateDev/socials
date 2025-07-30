@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { User } from "@/app/_db/dummy";
+import { User } from "../types";
 
 type SelectedUserState = {
   selectedUser: User | null;

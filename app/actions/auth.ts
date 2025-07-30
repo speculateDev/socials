@@ -1,5 +1,6 @@
 "use server";
 
+import isEmail from "validator/lib/isEmail";
 import { redis } from "@/lib/db";
 import { signIn, signOut } from "../_lib/auth";
 import { DEFAULT_REDIRECT } from "../routes";
@@ -79,6 +80,9 @@ export const signUp = async (values: typeof defaultFormData) => {
   if (password.length < 6) {
     return { error: "Password must be at least 6 characters long" };
   }
+
+  // Check email format
+  if (!isEmail(email)) return { error: "Invalid email!" };
 
   try {
     // Check if user already exists based on email lookup
