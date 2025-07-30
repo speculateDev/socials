@@ -1,14 +1,17 @@
 "use client";
+
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { useSession } from "next-auth/react";
+import { toast } from "sonner";
+import { Loader2Icon } from "lucide-react";
 import { signUp } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
 import OauthBtn from "../OauthBtn";
-import { Loader2Icon } from "lucide-react";
 
 export const defaultFormData = {
   firstname: "",
@@ -20,6 +23,8 @@ export const defaultFormData = {
 const Page = () => {
   const [formData, setFormData] = useState(defaultFormData);
   const [isPending, startTransition] = useTransition();
+
+  const { update } = useSession();
 
   async function handleSignup(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,6 +46,13 @@ const Page = () => {
       }
 
       const res = await signUp(formData);
+
+      if (res.success) {
+        toast.success(res.success);
+
+        await update();
+        redirect("/");
+      }
 
       if (res?.error) {
         toast.error(res.error);

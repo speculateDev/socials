@@ -100,6 +100,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
       token.name = existingUser.name;
       token.email = existingUser.email;
+      token.sub = existingUser.id;
 
       return token;
     },

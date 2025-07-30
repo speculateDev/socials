@@ -48,7 +48,8 @@ export async function signinWithCredentials(values: {
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_REDIRECT,
+      // redirectTo: DEFAULT_REDIRECT,
+      redirect: false,
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -97,8 +98,11 @@ export const signUp = async (values: typeof defaultFormData) => {
       password,
       signUp: true,
       name: `${firstname} ${lastname}`,
-      redirectTo: DEFAULT_REDIRECT,
+      // redirectTo: DEFAULT_REDIRECT,
+      redirect: false,
     });
+
+    return { success: "User created successfuly" };
   } catch (error) {
     throw error;
   }

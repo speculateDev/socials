@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 import { signinWithCredentials } from "@/app/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -10,10 +11,12 @@ import { Label } from "@/components/ui/label";
 import OauthBtn from "../OauthBtn";
 import { Loader2Icon } from "lucide-react";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 function LoginCard() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { update } = useSession();
 
   const [isPending, startTransition] = useTransition();
 
@@ -26,7 +29,11 @@ function LoginCard() {
         toast.error(res.error);
         setEmail("");
         setPassword("");
+        return;
       }
+
+      await update();
+      redirect("/");
     });
   }
 
