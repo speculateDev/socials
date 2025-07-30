@@ -16,12 +16,17 @@ import { Textarea } from "@/components/ui/textarea";
 import EmojiPicker from "./EmojiPicker";
 import useSound from "use-sound";
 import { usePrefrences } from "@/app/store/usePrefrences";
+import { useMutation } from "@tanstack/react-query";
+import { sendMessage as sendMessageAction } from "@/app/actions/message";
+import { useSelectedUser } from "@/app/store/useSelectedUser";
 
 function ChatBottomBar() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [imgUrl, setImgUrl] = useState("");
   const [message, setMessage] = useState("");
   const { soundEnabled } = usePrefrences();
+
+  const { selectedUser } = useSelectedUser();
 
   const [playSound1] = useSound("/sounds/keystroke1.mp3", { volume: 2 });
   const [playSound2] = useSound("/sounds/keystroke2.mp3", { volume: 2 });
@@ -38,14 +43,31 @@ function ChatBottomBar() {
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      setMessage(message + "\n");
     }
 
-    if (e.key === "Enter" && !e.shiftKey) {
+    if (e.key === "Enter" && e.shiftKey) {
       e.preventDefault();
+      handleSendMessage();
     }
   }
 
-  const isPending = false;
+  const { mutate: sendMessage, isPending } = useMutation({
+    mutationFn: sendMessageAction,
+  });
+
+  const handleSendMessage = () => {
+    if (!message.trim() || !selectedUser) return;
+
+    sendMessage({
+      content: message,
+      messageType: "text",
+      receiverId: selectedUser.id,
+    });
+
+    setMessage("");
+    textAreaRef.current?.focus();
+  };
 
   return (
     <div className="flex w-full items-center p-2 gap-2 min-h-0">
@@ -132,7 +154,12 @@ function ChatBottomBar() {
         </motion.div>
 
         {message.trim() ? (
-          <Button key={"send"} variant="ghost" size="icon">
+          <Button
+            onClick={handleSendMessage}
+            key={"send"}
+            variant="ghost"
+            size="icon"
+          >
             <SendHorizonal size={20} className="text-muted-foreground" />
           </Button>
         ) : (
