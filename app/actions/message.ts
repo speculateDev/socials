@@ -60,3 +60,22 @@ export async function sendMessage({
 
   return { success: true, conversationId, messageId };
 }
+
+export async function getMessages(
+  selectedUserId: string,
+  currentUserId: string
+) {
+  const conversationId = `conversation:${[selectedUserId, currentUserId]
+    .sort()
+    .join(":")}`;
+
+  const messagesIds = await redis.zrange(`${conversationId}:messages`, 0, -1);
+
+  if (messagesIds.length === 0) return [];
+
+  const pipeline = redis.pipeline();
+  messagesIds.forEach((messageId) => pipeline.hgetall(messageId as string));
+  const messages = await pipeline.exec();
+
+  return messages as Message[];
+}
