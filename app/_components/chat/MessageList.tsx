@@ -9,7 +9,7 @@ import MessagesSkeleton from "../skeletons/MessagesSkeleton";
 import { useEffect, useRef } from "react";
 
 function MessageList() {
-  const messageContainerRef = useRef<HTMLElement>(null);
+  const messageContainerRef = useRef<HTMLDivElement>(null);
   const { selectedUser } = useSelectedUser();
   const { data } = useSession();
 
@@ -45,7 +45,10 @@ function MessageList() {
   // const messages = [...senderMessages, ...randomMessages.slice(0, 3)];
 
   return (
-    <div className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto min-h-0">
+    <div
+      ref={messageContainerRef}
+      className="w-full h-full flex flex-col overflow-x-hidden overflow-y-auto min-h-0"
+    >
       {/* this component ensure the animation is applied when items are added or removed */}
       <AnimatePresence>
         {!isMessagesLoading &&
@@ -86,12 +89,12 @@ function MessageList() {
                   </Avatar>
                 )}
                 {message.messageType === "text" ? (
-                  <span className="bg-accent p-3 rounded-md max-w-xs">
+                  <span className="bg-accent p-3 rounded-md max-w-xs break-words whitespace-pre-wrap">
                     {message.content}
                   </span>
                 ) : (
                   <img
-                    src={message.content}
+                    src={message.content || "/placeholder-image.png"}
                     alt="Message Image"
                     className="border p-2 rounded h-40 md:h-52 object-cover"
                   />
