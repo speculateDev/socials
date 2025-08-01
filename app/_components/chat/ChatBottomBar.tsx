@@ -20,6 +20,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sendMessage as sendMessageAction } from "@/app/actions/message";
 import { useSelectedUser } from "@/app/store/useSelectedUser";
 import { useSession } from "next-auth/react";
+import { Message } from "@/app/types";
+import { pusherClient } from "@/lib/pusher";
 
 function ChatBottomBar() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
@@ -31,11 +33,18 @@ function ChatBottomBar() {
   const { selectedUser } = useSelectedUser();
 
   const { data } = useSession();
+  const currUser = data?.user;
+
+  const queryClient = useQueryClient();
 
   const [playSound1] = useSound("/sounds/keystroke1.mp3", { volume: 2 });
   const [playSound2] = useSound("/sounds/keystroke2.mp3", { volume: 2 });
   const [playSound3] = useSound("/sounds/keystroke3.mp3", { volume: 2 });
   const [playSound4] = useSound("/sounds/keystroke4.mp3", { volume: 2 });
+
+  const [playNotificationSound] = useSound("/sounds/notification.mp3", {
+    volume: 2,
+  });
 
   const playSoundsArr = [playSound1, playSound2, playSound3, playSound4];
 
@@ -72,6 +81,40 @@ function ChatBottomBar() {
     setMessage("");
     textAreaRef.current?.focus();
   };
+
+  useEffect(() => {
+    const channelName = `${currUser?.id}__${selectedUser?.id}`
+      .split("__")
+      .sort()
+      .join("__");
+
+    function handleNewMessage(data: { message: Message }) {
+      queryClient.setQueryData(
+        ["messages", selectedUser?.id],
+        (oldMessages: Message[]) => {
+          return [...oldMessages, data.message];
+        }
+      );
+
+      if (soundEnabled && data.message.senderId !== currUser?.id) {
+        playNotificationSound();
+      }
+    }
+
+    const channel = pusherClient?.subscribe(channelName);
+    channel?.bind("newMessage", handleNewMessage);
+
+    return () => {
+      channel?.unbind("newMessage");
+      pusherClient?.unsubscribe(channelName);
+    };
+  }, [
+    currUser?.id,
+    selectedUser?.id,
+    queryClient,
+    playNotificationSound,
+    soundEnabled,
+  ]);
 
   return (
     <div className="flex w-full items-center p-2 gap-2 min-h-0">
