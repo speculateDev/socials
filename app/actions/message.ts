@@ -2,11 +2,12 @@
 
 import { redis } from "@/lib/db";
 import { currentUser } from "../_lib/helpers";
-import { Message } from "../_db/dummy";
+import { pusherServer } from "@/lib/pusher";
+import { Message } from "../types";
 
 type SendMessageProps = {
   content: string;
-  receiverId: string;
+  receiverId?: string;
   messageType: "text" | "image";
 };
 
@@ -58,6 +59,15 @@ export async function sendMessage({
     member: JSON.stringify(messageId),
   });
 
+  const channelName = `${senderId}__${receiverId}`
+    .split("__")
+    .sort()
+    .join("__");
+
+  await pusherServer?.trigger(channelName, "newMessage", {
+    message: { senderId, content, timestamp, messageType },
+  });
+
   return { success: true, conversationId, messageId };
 }
 
@@ -69,12 +79,16 @@ export async function getMessages(
     .sort()
     .join(":")}`;
 
-  const messagesIds = await redis.zrange(`${conversationId}:messages`, 0, -1);
+  const messagesIds = (await redis.zrange(
+    `${conversationId}:messages`,
+    0,
+    -1
+  )) as string[];
 
   if (messagesIds.length === 0) return [];
 
   const pipeline = redis.pipeline();
-  messagesIds.forEach((messageId) => pipeline.hgetall(messageId as string));
+  messagesIds.forEach((messageId) => pipeline.hgetall(messageId));
   const messages = await pipeline.exec();
 
   return messages as Message[];
