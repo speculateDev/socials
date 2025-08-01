@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   Dialog,
@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ImageIcon, Loader2Icon, SendHorizonal, ThumbsUp } from "lucide-react";
-import { CldUploadWidget } from "next-cloudinary";
+import { CldUploadWidget, CloudinaryUploadWidgetInfo } from "next-cloudinary";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "motion/react";
@@ -16,17 +16,21 @@ import { Textarea } from "@/components/ui/textarea";
 import EmojiPicker from "./EmojiPicker";
 import useSound from "use-sound";
 import { usePrefrences } from "@/app/store/usePrefrences";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sendMessage as sendMessageAction } from "@/app/actions/message";
 import { useSelectedUser } from "@/app/store/useSelectedUser";
+import { useSession } from "next-auth/react";
 
 function ChatBottomBar() {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+
   const [imgUrl, setImgUrl] = useState("");
   const [message, setMessage] = useState("");
   const { soundEnabled } = usePrefrences();
 
   const { selectedUser } = useSelectedUser();
+
+  const { data } = useSession();
 
   const [playSound1] = useSound("/sounds/keystroke1.mp3", { volume: 2 });
   const [playSound2] = useSound("/sounds/keystroke2.mp3", { volume: 2 });
@@ -73,6 +77,12 @@ function ChatBottomBar() {
     <div className="flex w-full items-center p-2 gap-2 min-h-0">
       {!message.trim() && (
         <CldUploadWidget
+          onSuccess={(result, { widget }) => {
+            setImgUrl((result.info as CloudinaryUploadWidgetInfo).secure_url);
+          }}
+          onQueuesEnd={(result, { widget }) => {
+            widget.close();
+          }}
           options={{
             folder: "socially",
           }}
@@ -98,7 +108,7 @@ function ChatBottomBar() {
 
           <div className="flex justify-center items-center relative h-96 w-full mx-auto">
             <Image
-              src="/logo.png"
+              src={imgUrl || "/placeholder-image.png"}
               alt="Image Preview"
               fill
               className="object-contain"
@@ -106,7 +116,24 @@ function ChatBottomBar() {
           </div>
 
           <DialogFooter>
-            <Button type="submit">Send</Button>
+            <Button
+              onClick={() => {
+                sendMessage({
+                  receiverId: selectedUser?.id,
+                  content: imgUrl,
+                  messageType: "image",
+                });
+
+                setImgUrl("");
+              }}
+              type="submit"
+            >
+              {!isPending ? (
+                <span>Send</span>
+              ) : (
+                <Loader2Icon className="size-6 animate-spin" />
+              )}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
