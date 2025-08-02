@@ -70,7 +70,7 @@ const Page = () => {
   };
 
   return (
-    <div className="flex h-screen w-full justify-center items-center">
+    <div className="flex h-screen w-full justify-center items- p-6 sm:p-0">
       <div className="flex flex-col gap-4 mx-auto max-w-sm w-full">
         <h2 className="text-2xl font-medium">Sign Up</h2>
         <p className="text-gray-500 text-sm">Get started today!</p>
@@ -135,7 +135,7 @@ const Page = () => {
 
         <p className="text-center text-foreground/40">Or</p>
 
-        <div className="flex justify-center gap-6">
+        <div className="flex flex-col sm:flex-row justify-center gap-6">
           <OauthBtn provider="google">
             <img
               className="size-6"
